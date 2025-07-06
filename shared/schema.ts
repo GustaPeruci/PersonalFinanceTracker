@@ -95,13 +95,11 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export const insertTransactionSchema = createInsertSchema(transactions).omit({
   id: true,
-  userId: true,
   createdAt: true,
 });
 
 export const insertDebtorSchema = createInsertSchema(debtors).omit({
   id: true,
-  userId: true,
   createdAt: true,
 });
 
