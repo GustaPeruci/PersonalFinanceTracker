@@ -1,0 +1,99 @@
+Crie um projeto completo e funcional de organização financeira pessoal, com base nas seguintes informações reais:
+
+🧾 Informações sobre minha situação atual:
+💰 Créditos:
+WEG: R$ 3.858,61 (recebido uma vez)
+
+📉 Débitos Fixos (mensais):
+Youtube Premium: R$ 24,90
+
+Taxa de serviço Viacredi: R$ 16,90
+
+Aplicação programada: R$ 20,00
+
+Cotas Viacredi: R$ 35,00
+
+Plano de internet: R$ 65,00 (aproximadamente)
+
+📆 Débitos Temporários Parcelados:
+Faculdade: R$ 1.490,32 por 6x (Jul-Dez/2025)
+
+Faculdade: ~R$ 900 por 2x (Jan-Fev/2026)
+
+Tênis Vans: R$ 126,63 por 3x (Jul-Set/2025)
+
+Cafeteira mãe: R$ 22,50 por 10x (Jun/2025-Abr/2026)
+
+Troca de óleo carro pai: R$ 80,26 por 4x (Mai-Ago/2025)
+
+Fluency (inglês): R$ 97,00 por 12x (Abr/2025-Mar/2026)
+
+Oralfun aparelho: R$ 129,00 por 6x (Abr-Set/2025)
+
+Relógio: R$ 49,00 por 12x (Abr/2025-Mar/2026)
+
+Controle Kabum: R$ 28,93 por 10x (Ago/2025-Mai/2026)
+
+Empréstimo moto: R$ 222,21 por 19x (Mar/2025-Set/2026)
+
+Extração de sisos: ~R$ 30,00 por 97x (Ago/2021-Nov/2026)
+
+🤝 Devedores:
+Pai:
+
+Carburador: R$ 44,94 por 12x (Jan-Dez/2025)
+
+Masseira mãe: R$ 32,20 por 10x (Dez/2024-Set/2025)
+
+Empréstimo: R$ 175,87 por 45x (Abr/2024-?)
+
+Mãe:
+
+Masseira: R$ 32,20 por 10x (não pagou nenhuma parcela)
+
+Giovanna:
+
+Cafeteira mãe: R$ 22,50 por 10x (Jun/2025-Abr/2026)
+
+📌 Requisitos do Projeto:
+Crie um sistema visual e interativo de controle financeiro pessoal que:
+
+Organize e exiba todas as receitas e despesas mês a mês
+
+Calcule o saldo mensal e o saldo acumulado
+
+Destaque meses com saldo negativo ou crítico
+
+Permita acompanhar dívidas de terceiros (devedores) com controle de pagamento
+
+Permita adicionar novos registros de forma prática (créditos, despesas, empréstimos, etc.)
+
+Funcionalidade obrigatória:
+⚙️ Exportação para planilhas (Excel ou CSV) organizadas com:
+
+Resumo mensal por categoria
+
+Totalizadores (receitas, despesas, saldo, devedores)
+
+Histórico completo das parcelas
+
+Separação por tipo (fixo, temporário, empréstimo, a receber)
+
+Funcionalidade obrigatória:
+📝 Interface de input de novos dados, para:
+
+Inserir novos créditos, despesas e empréstimos
+
+Editar ou encerrar parcelas em andamento
+
+Incluir novos devedores e controlar os pagamentos
+
+Seja criativo com o design, visualizações, alertas, gráficos, relatórios mensais, etc.
+
+Importante:
+
+Você pode escolher livremente a stack tecnológica.
+
+O foco está na utilidade, praticidade e visualização clara dos dados financeiros.
+
+🎯 Objetivo final: Quero um projeto que me ajude a entender e controlar minha vida financeira, organizar todas as parcelas que tenho a pagar e a receber, prever meses mais apertados e registrar qualquer novo compromisso de forma rápida e prática, com possibilidade de exportar tudo em planilhas bem organizadas.
