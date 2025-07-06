@@ -15,15 +15,23 @@ import { z } from "zod";
 const formSchema = insertTransactionSchema.extend({
   amount: z.string().min(1, "Valor é obrigatório"),
   startDate: z.string().min(1, "Data é obrigatória"),
+}).omit({
+  remainingInstallments: true,
+  endDate: true,
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 interface TransactionFormProps {
   onSuccess?: () => void;
+  defaultValues?: {
+    type?: string;
+    description?: string;
+    category?: string;
+  };
 }
 
-export default function TransactionForm({ onSuccess }: TransactionFormProps) {
+export default function TransactionForm({ onSuccess, defaultValues }: TransactionFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -36,8 +44,10 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      type: defaultValues?.type || '',
+      description: defaultValues?.description || '',
+      category: defaultValues?.category || '',
       installments: 1,
-      remainingInstallments: 1,
       isActive: true,
     },
   });
@@ -47,10 +57,15 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
       const payload = {
-        ...data,
-        amount: parseFloat(data.amount.replace(',', '.')),
+        type: data.type,
+        description: data.description,
+        amount: data.amount.replace(',', '.'),
+        category: data.category || null,
+        startDate: data.startDate,
+        endDate: null,
         installments: parseInt(data.installments?.toString() || '1'),
-        remainingInstallments: parseInt(data.remainingInstallments?.toString() || '1'),
+        remainingInstallments: parseInt(data.installments?.toString() || '1'),
+        isActive: true,
       };
       
       return await apiRequest("POST", "/api/transactions", payload);
@@ -148,7 +163,6 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
             onChange={(e) => {
               const value = parseInt(e.target.value) || 1;
               setValue("installments", value);
-              setValue("remainingInstallments", value);
             }}
           />
           {errors.installments && <p className="text-sm text-red-600 mt-1">{errors.installments.message}</p>}

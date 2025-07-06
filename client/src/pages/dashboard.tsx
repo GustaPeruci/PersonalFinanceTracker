@@ -9,6 +9,7 @@ import ExpenseChart from "@/components/dashboard/expense-chart";
 import FixedExpenses from "@/components/dashboard/fixed-expenses";
 import Installments from "@/components/dashboard/installments";
 import DebtorsOverview from "@/components/dashboard/debtors-overview";
+import QuickActions from "@/components/dashboard/quick-actions";
 import TransactionForm from "@/components/forms/transaction-form";
 import { useState } from "react";
 
@@ -118,39 +119,7 @@ export default function Dashboard() {
         )}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="hover:bg-gray-50 transition-colors cursor-pointer">
-            <CardContent className="p-4">
-              <Plus className="h-6 w-6 text-primary mb-2" />
-              <h4 className="font-semibold text-gray-900">Adicionar Receita</h4>
-              <p className="text-sm text-gray-600">Registrar novo crédito</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="hover:bg-gray-50 transition-colors cursor-pointer">
-            <CardContent className="p-4">
-              <Plus className="h-6 w-6 text-error mb-2" />
-              <h4 className="font-semibold text-gray-900">Adicionar Despesa</h4>
-              <p className="text-sm text-gray-600">Registrar nova despesa</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="hover:bg-gray-50 transition-colors cursor-pointer">
-            <CardContent className="p-4">
-              <Plus className="h-6 w-6 text-warning mb-2" />
-              <h4 className="font-semibold text-gray-900">Novo Parcelamento</h4>
-              <p className="text-sm text-gray-600">Registrar compra parcelada</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={handleExportExcel}>
-            <CardContent className="p-4">
-              <Download className="h-6 w-6 text-success mb-2" />
-              <h4 className="font-semibold text-gray-900">Exportar Dados</h4>
-              <p className="text-sm text-gray-600">Gerar relatório Excel</p>
-            </CardContent>
-          </Card>
-        </div>
+        <QuickActions />
       </main>
     </div>
   );

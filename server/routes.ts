@@ -7,6 +7,76 @@ import ExcelJS from "exceljs";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Seed route for initial data (remove in production)
+  app.post("/api/seed", async (req, res) => {
+    try {
+      // Add some sample transactions based on user's real data
+      const transactions = [
+        {
+          type: "credit",
+          description: "WEG",
+          amount: "3858.61",
+          category: "salary",
+          startDate: "2025-07-01",
+          endDate: null,
+          installments: 1,
+          remainingInstallments: 1,
+          isActive: true,
+          userId: 1,
+        },
+        {
+          type: "fixed_expense",
+          description: "YouTube Premium",
+          amount: "24.90",
+          category: "subscription",
+          startDate: "2025-07-01",
+          endDate: null,
+          installments: 1,
+          remainingInstallments: 1,
+          isActive: true,
+          userId: 1,
+        },
+        {
+          type: "installment",
+          description: "Faculdade",
+          amount: "1490.32",
+          category: "education",
+          startDate: "2025-07-01",
+          endDate: null,
+          installments: 6,
+          remainingInstallments: 6,
+          isActive: true,
+          userId: 1,
+        }
+      ];
+
+      for (const transaction of transactions) {
+        await storage.createTransaction(transaction);
+      }
+
+      // Add sample debtors
+      const debtors = [
+        {
+          name: "Pai",
+          totalAmount: "253.01",
+          paidAmount: "0",
+          description: "Carburador + Masseira + Empréstimo",
+          status: "active",
+          dueDate: null,
+          userId: 1,
+        }
+      ];
+
+      for (const debtor of debtors) {
+        await storage.createDebtor(debtor);
+      }
+
+      res.json({ message: "Database seeded successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to seed database" });
+    }
+  });
+
   // Dashboard data
   app.get("/api/dashboard", async (req, res) => {
     try {
@@ -45,7 +115,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = 1;
       const validatedData = insertTransactionSchema.parse(req.body);
       const transaction = await storage.createTransaction({
-        ...validatedData,
+        type: validatedData.type,
+        description: validatedData.description,
+        amount: validatedData.amount,
+        category: validatedData.category,
+        startDate: validatedData.startDate,
+        endDate: validatedData.endDate,
+        installments: validatedData.installments,
+        remainingInstallments: validatedData.remainingInstallments,
+        isActive: validatedData.isActive,
         userId,
       });
       res.json(transaction);
