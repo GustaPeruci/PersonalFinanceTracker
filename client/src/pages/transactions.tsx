@@ -1,19 +1,59 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar, CreditCard, TrendingUp, TrendingDown } from "lucide-react";
+import { Plus, Calendar, CreditCard, TrendingUp, TrendingDown, Edit, Trash2 } from "lucide-react";
 import TransactionForm from "@/components/forms/transaction-form";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { Transaction } from "@shared/schema";
 
 export default function Transactions() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ["/api/transactions"],
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/transactions/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
+      toast({
+        title: "Transação removida",
+        description: "A transação foi removida com sucesso.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Não foi possível remover a transação.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEdit = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = (id: number) => {
+    deleteMutation.mutate(id);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setEditingTransaction(null);
+  };
 
   const getTransactionIcon = (type: string) => {
     switch (type) {
@@ -63,40 +103,59 @@ export default function Transactions() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Transações</h2>
-              <p className="text-gray-600">Histórico completo de receitas e despesas</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Transações</h2>
+              <p className="text-gray-600 dark:text-gray-400">Histórico completo de receitas e despesas</p>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary/90">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nova Transação
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Adicionar Nova Transação</DialogTitle>
-                </DialogHeader>
-                <TransactionForm onSuccess={() => setIsDialogOpen(false)} />
-              </DialogContent>
-            </Dialog>
+            <div className="flex gap-2">
+              <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
+                <DialogTrigger asChild>
+                  <Button className="bg-primary hover:bg-primary/90">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nova Transação
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingTransaction ? "Editar Transação" : "Adicionar Nova Transação"}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <TransactionForm 
+                    onSuccess={handleCloseDialog}
+                    defaultValues={editingTransaction ? {
+                      type: editingTransaction.type,
+                      description: editingTransaction.description,
+                      amount: editingTransaction.amount,
+                      category: editingTransaction.category || '',
+                      startDate: editingTransaction.startDate,
+                      endDate: editingTransaction.endDate || undefined,
+                      installments: editingTransaction.installments || 1,
+                      remainingInstallments: editingTransaction.remainingInstallments || 1,
+                      isActive: editingTransaction.isActive ?? true
+                    } : undefined}
+                    editMode={!!editingTransaction}
+                    editId={editingTransaction?.id}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
         <div className="grid gap-4">
-          {transactions.map((transaction: Transaction) => (
+          {(transactions as Transaction[]).map((transaction: Transaction) => (
             <Card key={transaction.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     {getTransactionIcon(transaction.type)}
                     <div>
-                      <h3 className="font-semibold text-gray-900">{transaction.description}</h3>
-                      <p className="text-sm text-gray-600">
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{transaction.description}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         {new Date(transaction.startDate).toLocaleDateString('pt-BR')}
-                        {transaction.installments > 1 && (
+                        {(transaction.installments || 1) > 1 && (
                           <span className="ml-2">
-                            • {transaction.remainingInstallments}/{transaction.installments} parcelas
+                            • {transaction.remainingInstallments}/{transaction.installments || 1} parcelas
                           </span>
                         )}
                       </p>
@@ -111,8 +170,47 @@ export default function Transactions() {
                         {transaction.type === 'credit' ? '+' : '-'}R$ {parseFloat(transaction.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                       {transaction.category && (
-                        <p className="text-sm text-gray-500">{transaction.category}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.category}</p>
                       )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(transaction)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir a transação "{transaction.description}"? 
+                              Esta ação não pode ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(transaction.id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 </div>

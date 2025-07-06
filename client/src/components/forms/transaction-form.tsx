@@ -15,9 +15,7 @@ import { z } from "zod";
 const formSchema = insertTransactionSchema.extend({
   amount: z.string().min(1, "Valor é obrigatório"),
   startDate: z.string().min(1, "Data é obrigatória"),
-}).omit({
-  remainingInstallments: true,
-  endDate: true,
+  endDate: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -28,10 +26,18 @@ interface TransactionFormProps {
     type?: string;
     description?: string;
     category?: string;
+    amount?: string;
+    startDate?: string;
+    endDate?: string;
+    installments?: number;
+    remainingInstallments?: number;
+    isActive?: boolean;
   };
+  editMode?: boolean;
+  editId?: number;
 }
 
-export default function TransactionForm({ onSuccess, defaultValues }: TransactionFormProps) {
+export default function TransactionForm({ onSuccess, defaultValues, editMode = false, editId }: TransactionFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -46,9 +52,13 @@ export default function TransactionForm({ onSuccess, defaultValues }: Transactio
     defaultValues: {
       type: defaultValues?.type || '',
       description: defaultValues?.description || '',
+      amount: defaultValues?.amount || '',
       category: defaultValues?.category || '',
-      installments: 1,
-      isActive: true,
+      startDate: defaultValues?.startDate || '',
+      endDate: defaultValues?.endDate || '',
+      installments: defaultValues?.installments || 1,
+      remainingInstallments: defaultValues?.remainingInstallments || 1,
+      isActive: defaultValues?.isActive ?? true,
     },
   });
 
@@ -68,7 +78,9 @@ export default function TransactionForm({ onSuccess, defaultValues }: Transactio
         isActive: true,
       };
       
-      return await apiRequest("POST", "/api/transactions", payload);
+      const url = editMode && editId ? `/api/transactions/${editId}` : "/api/transactions";
+      const method = editMode ? "PUT" : "POST";
+      return await apiRequest(method, url, payload);
     },
     onSuccess: () => {
       toast({
