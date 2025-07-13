@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, Plus, Users, BarChart3, Download } from "lucide-react";
+import { Home, Plus, Users, BarChart3, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -7,6 +7,7 @@ const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
   { name: "Adicionar Transação", href: "/transactions", icon: Plus },
   { name: "Devedores", href: "/debtors", icon: Users },
+  { name: "Projeções", href: "/projections", icon: Calculator },
   { name: "Relatórios", href: "/reports", icon: BarChart3 },
 ];
 

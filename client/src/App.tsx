@@ -9,6 +9,7 @@ import Dashboard from "@/pages/dashboard";
 import Transactions from "@/pages/transactions";
 import Debtors from "@/pages/debtors";
 import Reports from "@/pages/reports";
+import Projections from "@/pages/projections";
 import Sidebar from "@/components/layout/sidebar";
 
 function Router() {
@@ -21,6 +22,7 @@ function Router() {
           <Route path="/transactions" component={Transactions} />
           <Route path="/debtors" component={Debtors} />
           <Route path="/reports" component={Reports} />
+          <Route path="/projections" component={Projections} />
           <Route component={NotFound} />
         </Switch>
       </div>

@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertTransactionSchema, insertDebtorSchema, insertDebtorPaymentSchema } from "@shared/schema";
+import { financialProjector } from "./financial-projections";
 import { z } from "zod";
 import ExcelJS from "exceljs";
 
@@ -272,6 +273,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(balances);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch monthly balances" });
+    }
+  });
+
+  // Financial projection routes
+  app.get("/api/projections", async (req, res) => {
+    try {
+      const userId = 1;
+      const months = parseInt(req.query.months as string) || 12;
+      const projections = await financialProjector.generateProjections(userId, months);
+      res.json(projections);
+    } catch (error) {
+      console.error("Projection error:", error);
+      res.status(500).json({ error: "Failed to generate projections" });
+    }
+  });
+
+  app.post("/api/projections/analyze", async (req, res) => {
+    try {
+      const userId = 1;
+      
+      // Convert amount from string to number for analysis
+      const transactionData = {
+        ...req.body,
+        userId,
+        amount: parseFloat(req.body.amount),
+      };
+      
+      const analysis = await financialProjector.analyzeNewTransaction(userId, transactionData);
+      res.json(analysis);
+    } catch (error) {
+      console.error("Projection analysis error:", error);
+      res.status(500).json({ error: "Failed to analyze transaction impact" });
     }
   });
 
