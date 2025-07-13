@@ -111,7 +111,7 @@ export default function Projections() {
   const analysis = analyzeTransactionMutation.data as ProjectionAnalysis;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6 bg-background text-foreground min-h-screen">
       <div className="flex items-center gap-2">
         <Calculator className="h-6 w-6" />
         <h1 className="text-2xl font-bold">Projeções Financeiras</h1>

@@ -183,6 +183,10 @@ export class DatabaseStorage implements IStorage {
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
 
+    // Get all transactions for calculations
+    const allTransactions = await db.select().from(transactions)
+      .where(eq(transactions.userId, userId));
+
     // Get current month balance
     const [currentBalance] = await db.select().from(monthlyBalances)
       .where(and(
@@ -192,20 +196,14 @@ export class DatabaseStorage implements IStorage {
       ));
 
     // Get fixed expenses
-    const fixedExpenses = await db.select().from(transactions)
-      .where(and(
-        eq(transactions.userId, userId),
-        eq(transactions.type, 'fixed_expense'),
-        eq(transactions.isActive, true)
-      ));
+    const fixedExpenses = allTransactions.filter(t => 
+      t.type === 'fixed_expense' && t.isActive
+    );
 
     // Get active installments
-    const activeInstallments = await db.select().from(transactions)
-      .where(and(
-        eq(transactions.userId, userId),
-        eq(transactions.type, 'installment'),
-        eq(transactions.isActive, true)
-      ));
+    const activeInstallments = allTransactions.filter(t => 
+      t.type === 'installment' && t.isActive
+    );
 
     // Get recent debtors
     const recentDebtors = await db.select().from(debtors)
@@ -218,6 +216,11 @@ export class DatabaseStorage implements IStorage {
       return sum + (parseFloat(debtor.totalAmount) - parseFloat(debtor.paidAmount));
     }, 0);
 
+    // Calculate monthly income from credits
+    const monthlyIncome = allTransactions
+      .filter(t => t.type === 'credit' && t.isActive)
+      .reduce((sum, credit) => sum + parseFloat(credit.amount), 0);
+
     // Calculate monthly expenses
     const monthlyExpenses = fixedExpenses.reduce((sum, expense) => {
       return sum + parseFloat(expense.amount);
@@ -225,9 +228,12 @@ export class DatabaseStorage implements IStorage {
       return sum + parseFloat(installment.amount);
     }, 0);
 
+    // Calculate current balance as income minus expenses
+    const calculatedBalance = monthlyIncome - monthlyExpenses;
+
     return {
-      currentBalance: currentBalance ? parseFloat(currentBalance.balance) : 0,
-      monthlyIncome: currentBalance ? parseFloat(currentBalance.income) : 0,
+      currentBalance: currentBalance ? parseFloat(currentBalance.balance) : calculatedBalance,
+      monthlyIncome,
       monthlyExpenses,
       amountToReceive,
       fixedExpenses,

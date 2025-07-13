@@ -45,10 +45,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Mobile header */}
-      <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
-        <h1 className="text-lg font-semibold text-gray-900">FinanceControl</h1>
+      <div className="lg:hidden bg-card border-b border-border px-4 py-3">
+        <h1 className="text-lg font-semibold">FinanceControl</h1>
       </div>
 
       <main className="px-4 py-6 sm:px-6 lg:px-8">
@@ -56,8 +56,8 @@ export default function Dashboard() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Dashboard Financeiro</h2>
-              <p className="text-gray-600">Controle completo das suas finanças pessoais</p>
+              <h2 className="text-2xl font-bold">Dashboard Financeiro</h2>
+              <p className="text-muted-foreground">Controle completo das suas finanças pessoais</p>
             </div>
             <div className="flex space-x-3">
               <Dialog open={isTransactionDialogOpen} onOpenChange={setIsTransactionDialogOpen}>
