@@ -1,60 +1,60 @@
-import { pgTable, text, serial, integer, boolean, decimal, date, timestamp } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
 });
 
-export const transactions = pgTable("transactions", {
-  id: serial("id").primaryKey(),
+export const transactions = sqliteTable("transactions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").references(() => users.id),
   type: text("type").notNull(), // 'credit', 'fixed_expense', 'installment', 'loan'
   description: text("description").notNull(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  amount: real("amount").notNull(),
   category: text("category"), // 'education', 'transport', 'subscription', etc.
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date"),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date"),
   installments: integer("installments").default(1),
   remainingInstallments: integer("remaining_installments").default(1),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
+  isActive: integer("is_active", { mode: 'boolean' }).default(true),
+  createdAt: text("created_at").default("CURRENT_TIMESTAMP"),
 });
 
-export const debtors = pgTable("debtors", {
-  id: serial("id").primaryKey(),
+export const debtors = sqliteTable("debtors", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").references(() => users.id),
   name: text("name").notNull(),
-  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
-  paidAmount: decimal("paid_amount", { precision: 10, scale: 2 }).default("0"),
+  totalAmount: real("total_amount").notNull(),
+  paidAmount: real("paid_amount").default(0),
   description: text("description"),
-  dueDate: date("due_date"),
+  dueDate: text("due_date"),
   status: text("status").default("active"), // 'active', 'paid', 'overdue'
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: text("created_at").default("CURRENT_TIMESTAMP"),
 });
 
-export const debtorPayments = pgTable("debtor_payments", {
-  id: serial("id").primaryKey(),
+export const debtorPayments = sqliteTable("debtor_payments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   debtorId: integer("debtor_id").references(() => debtors.id),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  paymentDate: date("payment_date").notNull(),
+  amount: real("amount").notNull(),
+  paymentDate: text("payment_date").notNull(),
   description: text("description"),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: text("created_at").default("CURRENT_TIMESTAMP"),
 });
 
-export const monthlyBalances = pgTable("monthly_balances", {
-  id: serial("id").primaryKey(),
+export const monthlyBalances = sqliteTable("monthly_balances", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").references(() => users.id),
   year: integer("year").notNull(),
   month: integer("month").notNull(),
-  income: decimal("income", { precision: 10, scale: 2 }).default("0"),
-  expenses: decimal("expenses", { precision: 10, scale: 2 }).default("0"),
-  balance: decimal("balance", { precision: 10, scale: 2 }).default("0"),
-  accumulatedBalance: decimal("accumulated_balance", { precision: 10, scale: 2 }).default("0"),
-  createdAt: timestamp("created_at").defaultNow(),
+  income: real("income").default(0),
+  expenses: real("expenses").default(0),
+  balance: real("balance").default(0),
+  accumulatedBalance: real("accumulated_balance").default(0),
+  createdAt: text("created_at").default("CURRENT_TIMESTAMP"),
 });
 
 // Relations
