@@ -114,7 +114,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Transaction request body:", req.body);
       const userId = 1;
-      const validatedData = insertTransactionSchema.parse(req.body);
+      
+      // Convert amount from string to number
+      const dataWithUserId = {
+        ...req.body,
+        userId,
+        amount: parseFloat(req.body.amount),
+      };
+      
+      const validatedData = insertTransactionSchema.parse(dataWithUserId);
       console.log("Validated data:", validatedData);
       const transaction = await storage.createTransaction(validatedData);
       res.json(transaction);
@@ -180,11 +188,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/debtors", async (req, res) => {
     try {
       const userId = 1;
-      const validatedData = insertDebtorSchema.parse(req.body);
-      const debtor = await storage.createDebtor({
-        ...validatedData,
+      
+      // Convert amounts from string to number
+      const dataWithUserId = {
+        ...req.body,
         userId,
-      });
+        totalAmount: parseFloat(req.body.totalAmount),
+        paidAmount: req.body.paidAmount ? parseFloat(req.body.paidAmount) : 0,
+      };
+      
+      const validatedData = insertDebtorSchema.parse(dataWithUserId);
+      const debtor = await storage.createDebtor(validatedData);
       res.json(debtor);
     } catch (error) {
       if (error instanceof z.ZodError) {
